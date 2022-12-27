@@ -1,0 +1,55 @@
+version: 2.1
+
+jobs:
+  docker_layer_caching_true:
+    docker:
+    - image: cimg/base:stable
+    steps:
+    - run: which docker
+    - run: docker -v
+    - setup_remote_docker:
+        version: 20.10.7
+        docker_layer_caching: true
+    - run:
+        command: |
+          while true; do
+            sleep 1
+            printf "\n\n$(date)\n"
+            docker images ls -a
+            echo "======"
+          done
+        background: true
+    - run:
+        name: Build a really docker image
+        command: |          
+          docker build -f Dockerfile --tag throwaway:$CIRCLE_BUILD_NUM .
+    - run: docker version
+  docker_layer_caching_false:
+    docker:
+    - image: cimg/base:stable
+    steps:
+    - run: which docker
+    - run: docker -v
+    - setup_remote_docker:
+        version: 20.10.7
+        docker_layer_caching: false
+    - run:
+        command: |
+          while true; do
+            sleep 1
+            printf "\n\n$(date)\n"
+            docker images ls -a
+            echo "======"
+          done
+        background: true
+    - run:
+        name: Build a really docker image
+        command: |          
+          docker build -f Dockerfile --tag throwaway:$CIRCLE_BUILD_NUM .
+    - run: docker version
+workflows:
+  version: 2
+  vm_jobs:
+    jobs:
+      - docker_layer_caching_true
+      - docker_layer_caching_false
