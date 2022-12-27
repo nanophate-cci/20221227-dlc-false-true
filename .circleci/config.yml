@@ -19,10 +19,14 @@ jobs:
             echo "======"
           done
         background: true
-    - run:
+    - run:      
         name: Build a really docker image
-        command: |          
-          docker build -f Dockerfile --tag throwaway:$CIRCLE_BUILD_NUM .
+        command: |
+          dockerfile=Dockerfile
+          echo "FROM alpine:latest" > $dockerfile
+          echo "RUN echo hello" >> $dockerfile
+          docker build -f $dockerfile --tag throwaway:$CIRCLE_BUILD_NUM .
+          docker run --rm throwaway:$CIRCLE_BUILD_NUM
     - run: docker version
   docker_layer_caching_false:
     docker:
@@ -44,8 +48,12 @@ jobs:
         background: true
     - run:
         name: Build a really docker image
-        command: |          
-          docker build -f Dockerfile --tag throwaway:$CIRCLE_BUILD_NUM .
+        command: |
+          dockerfile=Dockerfile
+          echo "FROM alpine:latest" > $dockerfile
+          echo "RUN echo hello" >> $dockerfile
+          docker build -f $dockerfile --tag throwaway:$CIRCLE_BUILD_NUM .
+          docker run --rm throwaway:$CIRCLE_BUILD_NUM
     - run: docker version
 workflows:
   version: 2
